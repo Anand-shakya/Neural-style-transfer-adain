@@ -9,10 +9,13 @@ from wtforms.validators import InputRequired
 from PIL import Image
 from torchvision import transforms
 import io
+from pathlib import Path
 
 # Import your existing AdaIN code
 from utils.models import VGGEncoder, Decoder
 from utils.utils import adaptive_instance_normalization, calc_mean_std
+
+BASE_DIR = Path(__file__).resolve().parent 
 
 
 app=Flask(__name__)
@@ -33,11 +36,16 @@ class UploadForm(FlaskForm):
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-encoder = VGGEncoder('vgg_normalised.pth').to(device)
+# encoder = VGGEncoder('vgg_normalised.pth').to(device) 
+
+encoder = VGGEncoder(str(BASE_DIR / 'vgg_normalised.pth')).to(device)
 decoder = Decoder().to(device)
 
 # this is pre_train decoder amd this is use for better result because my PC is on CPU not GPU
-decoder.decoder.load_state_dict(torch.load(r'E:\prime_batch_projects\Nst_Adain\decoder.pth', map_location='cpu'))
+
+# decoder.decoder.load_state_dict(torch.load(r'E:\prime_batch_projects\Nst_Adain\decoder.pth', map_location='cpu'))
+
+decoder.decoder.load_state_dict(torch.load(BASE_DIR / 'decoder.pth', map_location='cpu'))
 
 # This is the path to my original decoder so I can try it later.
 # decoder.load_state_dict(torch.load(r'E:\prime_batch_projects\Nst_Adain\experiment\trail2\decoder_2.pth'))
